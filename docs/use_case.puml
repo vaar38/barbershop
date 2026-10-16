@@ -1,0 +1,56 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Гость" as guest
+actor "Клиент" as client
+actor "Мастер" as master
+actor "Администратор" as admin
+actor "Планировщик" as scheduler
+
+client -|> guest
+
+rectangle "Сервис записи Fade" {
+  usecase "Просмотр услуг и цен" as UC1
+  usecase "Просмотр мастеров и отзывов" as UC2
+  usecase "Регистрация и вход" as UC3
+  usecase "Записаться к мастеру" as UC4
+  usecase "Подобрать свободное время" as UC5
+  usecase "Просмотр своих записей" as UC6
+  usecase "Отменить запись" as UC7
+  usecase "Оставить отзыв" as UC8
+  usecase "Просмотр своего расписания" as UC9
+  usecase "Подтвердить запись" as UC10
+  usecase "Отметить итог визита" as UC11
+  usecase "Управление услугами и категориями" as UC12
+  usecase "Управление мастерами и филиалами" as UC13
+  usecase "Составление графика смен" as UC14
+  usecase "Просмотр всех записей" as UC15
+  usecase "Напоминание за 24 часа" as UC16
+}
+
+guest --> UC1
+guest --> UC2
+guest --> UC3
+
+client --> UC4
+client --> UC6
+client --> UC7
+client --> UC8
+UC4 ..> UC5 : <<include>>
+UC7 ..> UC6 : <<extend>>
+UC8 ..> UC6 : <<extend>>
+
+UC9 <-- master
+UC10 <-- master
+UC11 <-- master
+
+UC10 <-- admin
+UC12 <-- admin
+UC13 <-- admin
+UC14 <-- admin
+UC15 <-- admin
+UC7 <-- admin
+
+UC16 <-- scheduler
+@enduml

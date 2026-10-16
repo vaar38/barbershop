@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1840 560" width="1840" height="560" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#222"/>
+    </marker>
+  </defs>
+  <style>
+    .lane { fill: none; stroke: #222; stroke-width: 1.5; }
+    .task { fill: #fff; stroke: #222; stroke-width: 1.5; }
+    .flow { fill: none; stroke: #222; stroke-width: 1.4; marker-end: url(#arr); }
+    .gw { fill: #fff; stroke: #222; stroke-width: 1.5; }
+    .t { fill: #111; text-anchor: middle; }
+    .lbl { fill: #333; font-size: 12px; }
+    .hdr { fill: #111; font-weight: 600; text-anchor: middle; }
+  </style>
+
+  <rect x="0" y="0" width="1840" height="560" fill="#fff"/>
+
+  <!-- pool and lanes -->
+  <rect class="lane" x="10" y="10" width="1820" height="530"/>
+  <line class="lane" x1="46" y1="10" x2="46" y2="540"/>
+  <line class="lane" x1="82" y1="10" x2="82" y2="540"/>
+  <line class="lane" x1="46" y1="190" x2="1830" y2="190"/>
+  <line class="lane" x1="46" y1="370" x2="1830" y2="370"/>
+  <text class="hdr" transform="translate(32,275) rotate(-90)">Запись клиента в барбершоп Fade</text>
+  <text class="hdr" transform="translate(68,100) rotate(-90)">Клиент</text>
+  <text class="hdr" transform="translate(68,280) rotate(-90)">Система Fade</text>
+  <text class="hdr" transform="translate(68,455) rotate(-90)">Мастер</text>
+
+  <!-- start -->
+  <circle cx="116" cy="100" r="16" fill="#fff" stroke="#222" stroke-width="1.5"/>
+  <text class="t lbl" x="116" y="134">Нужна</text>
+  <text class="t lbl" x="116" y="148">стрижка</text>
+
+  <!-- T1 -->
+  <rect class="task" x="150" y="70" width="120" height="60" rx="10"/>
+  <text class="t" x="210" y="97">Выбрать филиал</text>
+  <text class="t" x="210" y="113">и услуги</text>
+
+  <!-- T2 -->
+  <rect class="task" x="300" y="70" width="120" height="60" rx="10"/>
+  <text class="t" x="360" y="97">Выбрать мастера</text>
+  <text class="t" x="360" y="113">и дату</text>
+
+  <!-- T3 -->
+  <rect class="task" x="450" y="250" width="120" height="60" rx="10"/>
+  <text class="t" x="510" y="268">Посчитать</text>
+  <text class="t" x="510" y="284">длительность,</text>
+  <text class="t" x="510" y="300">найти слоты</text>
+
+  <!-- G1 -->
+  <polygon class="gw" points="630,258 652,280 630,302 608,280"/>
+  <line x1="622" y1="272" x2="638" y2="288" stroke="#222" stroke-width="2"/>
+  <line x1="638" y1="272" x2="622" y2="288" stroke="#222" stroke-width="2"/>
+  <text class="lbl" x="642" y="250">Есть свободное время?</text>
+
+  <!-- T4 -->
+  <rect class="task" x="700" y="70" width="120" height="60" rx="10"/>
+  <text class="t" x="760" y="97">Выбрать время,</text>
+  <text class="t" x="760" y="113">подтвердить</text>
+
+  <!-- T5 -->
+  <rect class="task" x="850" y="250" width="120" height="60" rx="10"/>
+  <text class="t" x="910" y="268">Проверить смену</text>
+  <text class="t" x="910" y="284">и пересечение</text>
+  <text class="t" x="910" y="300">с записями</text>
+
+  <!-- G2 -->
+  <polygon class="gw" points="1030,258 1052,280 1030,302 1008,280"/>
+  <line x1="1022" y1="272" x2="1038" y2="288" stroke="#222" stroke-width="2"/>
+  <line x1="1038" y1="272" x2="1022" y2="288" stroke="#222" stroke-width="2"/>
+  <text class="t lbl" x="1030" y="326">Время свободно?</text>
+
+  <!-- T6 -->
+  <rect class="task" x="1100" y="250" width="120" height="60" rx="10"/>
+  <text class="t" x="1160" y="268">Создать запись</text>
+  <text class="t" x="1160" y="284">pending,</text>
+  <text class="t" x="1160" y="300" font-size="11.5">зафиксировать цену</text>
+
+  <!-- T7 -->
+  <rect class="task" x="1250" y="425" width="120" height="60" rx="10"/>
+  <text class="t" x="1310" y="452">Подтвердить</text>
+  <text class="t" x="1310" y="468">запись</text>
+
+  <!-- T8 -->
+  <rect class="task" x="1400" y="250" width="120" height="60" rx="10"/>
+  <text class="t" x="1460" y="268" font-size="12">статус confirmed,</text>
+  <text class="t" x="1460" y="284">уведомить</text>
+  <text class="t" x="1460" y="300">клиента</text>
+
+  <!-- timer -->
+  <circle cx="1560" cy="455" r="16" fill="#fff" stroke="#222" stroke-width="1.5"/>
+  <circle cx="1560" cy="455" r="12" fill="#fff" stroke="#222" stroke-width="1.2"/>
+  <line x1="1560" y1="455" x2="1560" y2="447" stroke="#222" stroke-width="1.4"/>
+  <line x1="1560" y1="455" x2="1566" y2="458" stroke="#222" stroke-width="1.4"/>
+  <text class="t lbl" x="1560" y="491">Время визита</text>
+
+  <!-- T9 -->
+  <rect class="task" x="1610" y="425" width="120" height="60" rx="10"/>
+  <text class="t" x="1670" y="452">Обслужить,</text>
+  <text class="t" x="1670" y="468">отметить итог</text>
+
+  <!-- end -->
+  <circle cx="1780" cy="455" r="16" fill="#fff" stroke="#222" stroke-width="3.5"/>
+  <text class="t lbl" x="1780" y="491">Запись закрыта</text>
+
+  <!-- flows -->
+  <path class="flow" d="M132,100 H150"/>
+  <path class="flow" d="M270,100 H300"/>
+  <path class="flow" d="M420,100 H510 V250"/>
+  <path class="flow" d="M570,280 H608"/>
+  <path class="flow" d="M630,258 V100 H700"/>
+  <text class="lbl" x="638" y="210">да</text>
+  <path class="flow" d="M630,302 V355 H360 V130"/>
+  <text class="t lbl" x="495" y="345">нет — другая дата или мастер</text>
+  <path class="flow" d="M820,100 H910 V250"/>
+  <path class="flow" d="M970,280 H1008"/>
+  <path class="flow" d="M1052,280 H1100"/>
+  <text class="lbl" x="1062" y="272">да</text>
+  <path class="flow" d="M1030,258 V40 H760 V70"/>
+  <text class="lbl" x="1040" y="150">нет — время занято или вне смены</text>
+  <path class="flow" d="M1220,280 H1310 V425"/>
+  <path class="flow" d="M1370,455 H1460 V310"/>
+  <path class="flow" d="M1520,280 H1560 V439"/>
+  <path class="flow" d="M1576,455 H1610"/>
+  <path class="flow" d="M1730,455 H1764"/>
+</svg>
