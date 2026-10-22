@@ -106,7 +106,7 @@ erDiagram
 
     roles {
         int id PK
-        varchar name "client, master, admin"
+        varchar name UK "client, master, admin"
     }
     users {
         int id PK
@@ -120,7 +120,7 @@ erDiagram
     }
     branches {
         int id PK
-        varchar name
+        varchar name UK
         varchar address
         varchar phone
         bool is_active
@@ -136,7 +136,7 @@ erDiagram
     }
     service_categories {
         int id PK
-        varchar name
+        varchar name UK
     }
     services {
         int id PK
