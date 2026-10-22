@@ -1,0 +1,119 @@
+from sqlalchemy import (Boolean, Column, DateTime, Date, Time, Text, SmallInteger,
+                        Numeric, ForeignKey, Integer, String, func)
+
+from app.database import Base
+
+
+class Role(Base):
+    __tablename__ = "roles"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), unique=True, nullable=False)
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False, index=True)
+    email = Column(String(255), unique=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    full_name = Column(String(100), nullable=False)
+    phone = Column(String(20))
+    token_version = Column(Integer, nullable=False, default=0, server_default="0")
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class Branch(Base):
+    __tablename__ = "branches"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), unique=True, nullable=False)
+    address = Column(String(255), nullable=False)
+    phone = Column(String(20))
+    is_active = Column(Boolean, nullable=False, default=True, server_default="true")
+
+
+class ServiceCategory(Base):
+    __tablename__ = "service_categories"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), unique=True, nullable=False)
+
+
+class Service(Base):
+    __tablename__ = "services"
+
+    id = Column(Integer, primary_key=True)
+    category_id = Column(Integer, ForeignKey("service_categories.id"), nullable=False, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text)
+    duration_min = Column(SmallInteger, nullable=False)
+    base_price = Column(Numeric(10, 2), nullable=False)
+    is_active = Column(Boolean, nullable=False, default=True, server_default="true")
+
+
+class Master(Base):
+    __tablename__ = "masters"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    branch_id = Column(Integer, ForeignKey("branches.id"), nullable=False, index=True)
+    level = Column(String(20), nullable=False)
+    bio = Column(Text)
+    photo_url = Column(String(255))
+    is_active = Column(Boolean, nullable=False, default=True, server_default="true")
+
+
+class MasterService(Base):
+    __tablename__ = "master_services"
+
+    master_id = Column(Integer, ForeignKey("masters.id"), primary_key=True)
+    service_id = Column(Integer, ForeignKey("services.id"), primary_key=True)
+
+
+class WorkShift(Base):
+    __tablename__ = "work_shifts"
+
+    id = Column(Integer, primary_key=True)
+    master_id = Column(Integer, ForeignKey("masters.id"), nullable=False, index=True)
+    branch_id = Column(Integer, ForeignKey("branches.id"), nullable=False)
+    work_date = Column(Date, nullable=False)
+    start_time = Column(Time, nullable=False)
+    end_time = Column(Time, nullable=False)
+
+
+class Appointment(Base):
+    __tablename__ = "appointments"
+
+    id = Column(Integer, primary_key=True)
+    client_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    master_id = Column(Integer, ForeignKey("masters.id"), nullable=False, index=True)
+    branch_id = Column(Integer, ForeignKey("branches.id"), nullable=False)
+    start_at = Column(DateTime(timezone=True), nullable=False)
+    end_at = Column(DateTime(timezone=True), nullable=False)
+    status = Column(String(20), nullable=False, default="pending", server_default="pending")
+    total_price = Column(Numeric(10, 2), nullable=False)
+    comment = Column(Text)
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    cancelled_at = Column(DateTime(timezone=True))
+
+
+class AppointmentService(Base):
+    __tablename__ = "appointment_services"
+
+    appointment_id = Column(Integer, ForeignKey("appointments.id"), primary_key=True)
+    service_id = Column(Integer, ForeignKey("services.id"), primary_key=True)
+    price = Column(Numeric(10, 2), nullable=False)
+    duration_min = Column(SmallInteger, nullable=False)
+
+
+class Review(Base):
+    __tablename__ = "reviews"
+
+    id = Column(Integer, primary_key=True)
+    appointment_id = Column(Integer, ForeignKey("appointments.id"), unique=True, nullable=False)
+    rating = Column(SmallInteger, nullable=False)
+    text = Column(Text)
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+   
