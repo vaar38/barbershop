@@ -1,5 +1,18 @@
-from sqlalchemy import (Boolean, Column, DateTime, Date, Time, Text, SmallInteger,
-                        Numeric, ForeignKey, Integer, String, func)
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Column,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    SmallInteger,
+    String,
+    Text,
+    Time,
+    func,
+)
 
 from app.database import Base
 
@@ -52,6 +65,11 @@ class Service(Base):
     base_price = Column(Numeric(10, 2), nullable=False)
     is_active = Column(Boolean, nullable=False, default=True, server_default="true")
 
+    __table_args__ = (
+        CheckConstraint("duration_min > 0", name="ck_services_duration"),
+        CheckConstraint("base_price > 0", name="ck_services_price"),
+    )
+
 
 class Master(Base):
     __tablename__ = "masters"
@@ -63,6 +81,10 @@ class Master(Base):
     bio = Column(Text)
     photo_url = Column(String(255))
     is_active = Column(Boolean, nullable=False, default=True, server_default="true")
+
+    __table_args__ = (
+        CheckConstraint("level IN ('junior', 'middle', 'top')", name="ck_masters_level"),
+    )
 
 
 class MasterService(Base):
@@ -82,6 +104,10 @@ class WorkShift(Base):
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
 
+    __table_args__ = (
+        CheckConstraint("end_time > start_time", name="ck_work_shifts_time"),
+    )
+
 
 class Appointment(Base):
     __tablename__ = "appointments"
@@ -97,6 +123,15 @@ class Appointment(Base):
     comment = Column(Text)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     cancelled_at = Column(DateTime(timezone=True))
+
+    __table_args__ = (
+        CheckConstraint("end_at > start_at", name="ck_appointments_time"),
+        CheckConstraint(
+            "status IN ('pending', 'confirmed', 'completed', 'cancelled', 'no_show')",
+            name="ck_appointments_status",
+        ),
+        CheckConstraint("total_price >= 0", name="ck_appointments_price"),
+    )
 
 
 class AppointmentService(Base):
@@ -116,4 +151,7 @@ class Review(Base):
     rating = Column(SmallInteger, nullable=False)
     text = Column(Text)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-   
+
+    __table_args__ = (
+        CheckConstraint("rating BETWEEN 1 AND 5", name="ck_reviews_rating"),
+    )
