@@ -59,3 +59,11 @@ class ServiceOut(BaseModel):
     description: str | None
     duration_min: int
     base_price: Decimal
+
+class MasterOut(BaseModel):
+    id: int
+    full_name: str
+    branch_id: int
+    level: str
+    bio: str | None
+    photo_url: str | None
