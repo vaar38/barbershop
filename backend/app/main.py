@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 
-from app.routers import auth, branches, categories, services
+from app.routers import auth, branches, categories, services, masters
 
 app = FastAPI()
 app.include_router(auth.router)
 app.include_router(branches.router)
 app.include_router(categories.router)
 app.include_router(services.router)
-
+app.include_router(masters.router)
 
 
 
