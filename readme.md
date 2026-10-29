@@ -7,6 +7,7 @@
 - Предпроектная аналитика: [Анализ.md](Анализ.md)
 - Документация бэкенда: [docs/backend.md](docs/backend.md)
 - Обоснование стека: [docs/stack.md](docs/stack.md)
+- Тест-кейсы: [docs/test-cases.md](docs/test-cases.md)
 - Как запустить: [раздел «Запуск»](#запуск)
 
 
