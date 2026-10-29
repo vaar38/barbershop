@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from app.schemas import MasterOut
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import Master, MasterService, User
+from app.models import Appointment, Master, MasterService, User, Service, WorkShift
+from app.config import TZ
+from datetime import date, datetime, timedelta
 
 router = APIRouter(prefix="/api/masters",tags=["masters"])
 
@@ -55,3 +57,50 @@ def get_master(master_id: int, db: Session = Depends(get_db)):
         bio=master.bio,
         photo_url=master.photo_url,
     )
+
+@router.get("/{master_id}/slots", response_model=list[datetime])
+def get_slot(date: date, master_id: int, service_ids: list[int] = Query(), db: Session = Depends(get_db)):
+    master = db.query(Master).filter(Master.id == master_id).first()
+
+    if master is None or master.is_active == False:
+        raise HTTPException(status_code=404, detail="Мастер не найден")
+
+    master_service = (
+        db.query(Service)
+        .join(MasterService, MasterService.service_id == Service.id)
+        .filter(MasterService.master_id == master_id)
+        .filter(Service.id.in_(service_ids))
+        .filter(Service.is_active == True)
+        .all()
+    )
+
+    if len(master_service) != len(service_ids):
+        raise HTTPException(status_code=422, detail="Мастер не оказывает выбранные услуги")
+
+    duration = timedelta(minutes = sum(s.duration_min for s in master_service))
+    shift = db.query(WorkShift).filter(WorkShift.master_id == master_id).filter(WorkShift.work_date == date).first()
+
+    if shift is None:
+        return []
+
+    start = datetime.combine(date, shift.start_time, tzinfo=TZ)
+    end = datetime.combine(date, shift.end_time, tzinfo=TZ)
+    step = timedelta(minutes=15)
+
+    busy = (
+        db.query(Appointment)
+        .filter(Appointment.master_id == master_id)
+        .filter(Appointment.status.in_(["pending","confirmed"]))
+        .filter(Appointment.start_at < end, Appointment.end_at > start)
+        .all()
+    )
+    now = datetime.now(TZ)
+
+    slots = []
+    while start + duration <= end:
+        slot_end = start + duration
+        is_busy = any(start < a.end_at and slot_end > a.start_at for a in busy)
+        if start > now and not is_busy:
+            slots.append(start)
+        start = start + step
+    return slots
