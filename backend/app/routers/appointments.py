@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 
 from app.config import TZ
 from app.database import get_db
-from app.models import Appointment, AppointmentService, Master, MasterService, Service, WorkShift, User
-from app.schemas import AppointmentCreate, AppointmentOut
+from app.models import Appointment, AppointmentService, Master, MasterService, Review, Service, WorkShift
+from app.schemas import AppointmentCreate, AppointmentOut, ReviewCreate, ReviewOut, StatusUpdate
 from app.security import get_current_user, get_role_name
 
 
@@ -112,6 +112,8 @@ def list_appointments(
     status: str | None = None,
     date_from: date | None = None,
     date_to: date | None = None,
+    master_id: int | None = None,
+    branch_id: int | None = None,
     user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -125,6 +127,12 @@ def list_appointments(
         if master is None:
             return []
         query = query.filter(Appointment.master_id == master.id)
+    else:
+        # фильтры по мастеру и филиалу — только у администратора
+        if master_id:
+            query = query.filter(Appointment.master_id == master_id)
+        if branch_id:
+            query = query.filter(Appointment.branch_id == branch_id)
 
     if status:
         query = query.filter(Appointment.status == status)
@@ -135,3 +143,96 @@ def list_appointments(
         query = query.filter(Appointment.start_at < datetime.combine(next_day, time.min, tzinfo=TZ))
 
     return query.order_by(Appointment.start_at).all()
+
+
+CANCEL_DEADLINE = timedelta(hours=2)
+
+
+# Найти запись, которую этот пользователь имеет право видеть.
+# Чужая запись и несуществующая выглядят одинаково — 404, чтобы не раскрывать её существование
+def find_visible(appointment_id, user, role, db):
+    appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+    if appointment is None:
+        raise HTTPException(status_code=404, detail="Запись не найдена")
+
+    if role == "client" and appointment.client_id != user.id:
+        raise HTTPException(status_code=404, detail="Запись не найдена")
+    if role == "master":
+        master = db.query(Master).filter(Master.user_id == user.id).first()
+        if master is None or appointment.master_id != master.id:
+            raise HTTPException(status_code=404, detail="Запись не найдена")
+    return appointment
+
+
+@router.get("/{appointment_id}", response_model=AppointmentOut)
+def get_appointment(appointment_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)):
+    return find_visible(appointment_id, user, get_role_name(user, db), db)
+
+
+@router.post("/{appointment_id}/cancel", response_model=AppointmentOut)
+def cancel_appointment(appointment_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)):
+    # Отменяет клиент (свою, не позже чем за 2 часа) или администратор (любую и в любое время)
+    role = get_role_name(user, db)
+    if role == "master":
+        raise HTTPException(status_code=403, detail="Мастер не может отменять записи")
+
+    appointment = find_visible(appointment_id, user, role, db)
+    if appointment.status not in ("pending", "confirmed"):
+        raise HTTPException(status_code=409, detail="Эту запись уже нельзя отменить")
+
+    now = datetime.now(TZ)
+    if role == "client" and appointment.start_at - now < CANCEL_DEADLINE:
+        raise HTTPException(status_code=422, detail="Отменить можно не позже чем за 2 часа до начала")
+
+    appointment.status = "cancelled"
+    appointment.cancelled_at = now
+    db.commit()
+    db.refresh(appointment)
+    return appointment
+
+
+# Разрешённые переходы статуса (см. диаграмму состояний в readme)
+NEXT_STATUS = {
+    "pending": {"confirmed"},
+    "confirmed": {"completed", "no_show"},
+}
+
+
+@router.patch("/{appointment_id}/status", response_model=AppointmentOut)
+def change_status(appointment_id: int, data: StatusUpdate, user=Depends(get_current_user), db: Session = Depends(get_db)):
+    role = get_role_name(user, db)
+    if role == "client":
+        raise HTTPException(status_code=403, detail="Статус меняет мастер или администратор")
+
+    appointment = find_visible(appointment_id, user, role, db)
+    if data.status not in NEXT_STATUS.get(appointment.status, set()):
+        raise HTTPException(status_code=422, detail=f"Нельзя перевести запись из {appointment.status} в {data.status}")
+
+    # Итог визита ставится, только когда время записи уже началось
+    if data.status in ("completed", "no_show") and appointment.start_at > datetime.now(TZ):
+        raise HTTPException(status_code=422, detail="Итог визита можно отметить только после начала записи")
+
+    appointment.status = data.status
+    db.commit()
+    db.refresh(appointment)
+    return appointment
+
+
+@router.post("/{appointment_id}/review", response_model=ReviewOut, status_code=201)
+def create_review(appointment_id: int, data: ReviewCreate, user=Depends(get_current_user), db: Session = Depends(get_db)):
+    # Отзыв оставляет только клиент записи и только после состоявшегося визита
+    appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+    if appointment is None or appointment.client_id != user.id:
+        raise HTTPException(status_code=404, detail="Запись не найдена")
+    if appointment.status != "completed":
+        raise HTTPException(status_code=422, detail="Отзыв можно оставить только после визита")
+
+    review = Review(appointment_id=appointment.id, rating=data.rating, text=data.text)
+    db.add(review)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Отзыв на эту запись уже есть")
+    db.refresh(review)
+    return review
