@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -7,9 +7,10 @@ from sqlalchemy.orm import Session
 
 from app.config import TZ
 from app.database import get_db
-from app.models import Appointment, AppointmentService, Master, MasterService, Service, WorkShift
+from app.models import Appointment, AppointmentService, Master, MasterService, Service, WorkShift, User
 from app.schemas import AppointmentCreate, AppointmentOut
-from app.security import get_current_user
+from app.security import get_current_user, get_role_name
+
 
 router = APIRouter(prefix="/api/appointments", tags=["appointments"])
 
@@ -104,3 +105,33 @@ def create_appointment(data: AppointmentCreate, user=Depends(get_current_user), 
 
     db.refresh(appointment)
     return appointment
+
+
+@router.get("", response_model=list[AppointmentOut])
+def list_appointments(
+    status: str | None = None,
+    date_from: date | None = None,
+    date_to: date | None = None,
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    role = get_role_name(user, db)
+    query = db.query(Appointment)
+
+    if role == "client":
+        query = query.filter(Appointment.client_id == user.id)
+    elif role == "master":
+        master = db.query(Master).filter(Master.user_id == user.id).first()
+        if master is None:
+            return []
+        query = query.filter(Appointment.master_id == master.id)
+
+    if status:
+        query = query.filter(Appointment.status == status)
+    if date_from:
+        query = query.filter(Appointment.start_at >= datetime.combine(date_from, time.min, tzinfo=TZ))
+    if date_to:
+        next_day = date_to + timedelta(days=1)
+        query = query.filter(Appointment.start_at < datetime.combine(next_day, time.min, tzinfo=TZ))
+
+    return query.order_by(Appointment.start_at).all()
