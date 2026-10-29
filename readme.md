@@ -4,7 +4,10 @@
 
 Учебный командный проект.
 
-Предпроектная аналитика: [Анализ.md](Анализ.md)
+- Предпроектная аналитика: [Анализ.md](Анализ.md)
+- Документация бэкенда: [docs/backend.md](docs/backend.md)
+- Обоснование стека: [docs/stack.md](docs/stack.md)
+- Как запустить: [раздел «Запуск»](#запуск)
 
 
 ## Идея
@@ -316,7 +319,49 @@ sequenceDiagram
 
 **База и инфраструктура** — PostgreSQL (расширение `btree_gist` для ограничения пересечений), Docker Compose, Nginx, GitHub Actions.
 
-**Тесты** — pytest + httpx на бэкенде, Vitest + Testing Library на фронте, ruff/ESLint/Prettier.
+**Тесты и качество кода** — pytest + httpx на бэкенде, Vitest + Testing Library на фронте, flake8, ESLint, Prettier.
+
+Почему выбраны именно они — [docs/stack.md](docs/stack.md).
+
+
+## Запуск
+
+Нужен только [Docker Desktop](https://www.docker.com/products/docker-desktop/) (или Docker Engine с Compose).
+
+1. Скопировать настройки и вписать свои значения:
+   ```
+   cp .env.example .env
+   ```
+   `POSTGRES_PASSWORD` — пароль базы (без символов `@ : / %`), `SECRET_KEY` — длинная случайная строка, `HTTP_PORT` — порт сайта (по умолчанию 80).
+
+2. Собрать и запустить:
+   ```
+   docker compose up -d --build
+   ```
+   Поднимутся три контейнера: `db` (PostgreSQL), `backend` (FastAPI, миграции применяются сами при старте) и `nginx` (собранный фронтенд + прокси на API).
+
+3. Заполнить демо-данными (один раз):
+   ```
+   docker compose exec backend python -m app.seed
+   ```
+
+| Адрес | Что там |
+|---|---|
+| http://localhost | сайт |
+| http://localhost/docs | Swagger — документация и проверка API |
+| http://localhost/api/health | проверка, что бэкенд жив |
+
+**Демо-учётки** (пароль у всех `12345678`):
+
+| Email | Роль |
+|---|---|
+| client@fade.ru | клиент |
+| ivan@fade.ru, oleg@fade.ru, timur@fade.ru, anna@fade.ru | мастер |
+| admin@fade.ru | администратор |
+
+Остановить — `docker compose down`, удалить вместе с базой — `docker compose down -v`.
+
+Запуск бэкенда без Docker — в [docs/backend.md](docs/backend.md#10-запуск-без-docker). Фронтенд отдельно: `cd frontend`, `npm ci`, `npm run dev` (проксирует `/api` на `127.0.0.1:8000`); тесты — `npm test`, линтер — `npm run lint`.
 
 
 ## API
@@ -345,7 +390,7 @@ sequenceDiagram
 
 **Записи**
 `GET /appointments` — свои у клиента, к себе у мастера, все у администратора; принимает `date_from`, `date_to`, `status`, у администратора ещё `master_id`, `branch_id`
-`POST /appointments` — сервер считает конец, цену и проверяет пересечение
+`POST /appointments` — клиент; сервер считает конец, цену и проверяет пересечение
 `GET /appointments/{id}`
 `PATCH /appointments/{id}/status` — мастер и администратор
 `POST /appointments/{id}/cancel`
