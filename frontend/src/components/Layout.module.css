@@ -1,0 +1,102 @@
+.header {
+  border-bottom: 1px solid var(--ink);
+}
+
+/* полоска как у вывески барбершопа */
+.pole {
+  height: 6px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--accent) 0 10px,
+    var(--paper) 10px 20px,
+    var(--ink) 20px 30px,
+    var(--paper) 30px 40px
+  );
+}
+
+.bar {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  display: flex;
+  align-items: baseline;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.logo {
+  font-family: var(--serif);
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+}
+
+.logo small {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-left: 8px;
+}
+
+.nav {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.nav a {
+  text-decoration: none;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+}
+
+.nav a:hover {
+  border-bottom-color: var(--line);
+}
+
+.nav a.active {
+  border-bottom-color: var(--accent);
+}
+
+.user {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .bar {
+    gap: 10px 16px;
+    justify-content: space-between;
+  }
+
+  .nav {
+    order: 3;
+    flex-basis: 100%;
+    gap: 14px;
+  }
+}
+
+.main {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px 16px 60px;
+}
+
+.footer {
+  border-top: 1px solid var(--line);
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 16px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}

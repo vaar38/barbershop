@@ -1,0 +1,362 @@
+.lead {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  max-width: 620px;
+  margin-bottom: 28px;
+}
+
+.section {
+  margin-bottom: 40px;
+}
+
+/* --- прайс как на доске в барбершопе: название ..... цена --- */
+.price {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px;
+}
+
+.price li {
+  padding: 6px 0;
+}
+
+.priceLine {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.price .name {
+  white-space: nowrap;
+}
+
+.price .dots {
+  flex: 1;
+  border-bottom: 1px dotted var(--muted);
+  transform: translateY(-4px);
+}
+
+.price .value {
+  font-family: var(--serif);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.price .sub {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 8px 48px;
+}
+
+.branches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.branches li {
+  border-top: 2px solid var(--ink);
+  padding-top: 8px;
+}
+
+/* --- фильтры над списком --- */
+.filters {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.filters label {
+  margin: 0;
+  min-width: 200px;
+}
+
+/* --- мастера --- */
+.masters {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.masters li {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  color: var(--muted);
+}
+
+.avatarBig {
+  width: 140px;
+  height: 140px;
+  font-size: 2.6rem;
+}
+
+.masterHead {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+.stars {
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+
+/* --- запись по шагам --- */
+.step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 8px 16px;
+  padding: 18px 0;
+  border-top: 1px solid var(--ink);
+}
+
+.step:last-child {
+  border-bottom: 1px solid var(--ink);
+}
+
+.stepNo {
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.stepDone .stepNo {
+  color: var(--accent);
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.choice {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  text-align: left;
+}
+
+.choice:hover:not(:disabled) {
+  background: var(--paper-2);
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.choice.picked,
+.choice.picked:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 6px;
+  max-width: 560px;
+}
+
+.summary {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  padding: 14px 16px;
+  max-width: 560px;
+}
+
+.summary dl {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 4px 12px;
+  margin: 0 0 12px;
+}
+
+.summary dt {
+  color: var(--muted);
+}
+
+.summary dd {
+  margin: 0;
+}
+
+/* --- записи --- */
+.status {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.status_pending {
+  color: #8a5a00;
+}
+
+.status_confirmed {
+  color: var(--ok);
+}
+
+.status_cancelled,
+.status_no_show {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--ink);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.tabs button {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 8px 14px;
+}
+
+.tabs button:hover:not(:disabled) {
+  background: transparent;
+  color: var(--ink);
+  border: none;
+  border-bottom: 3px solid var(--line);
+}
+
+.tabs button.on,
+.tabs button.on:hover:not(:disabled) {
+  color: var(--ink);
+  border-bottom: 3px solid var(--accent);
+}
+
+.form {
+  max-width: 380px;
+}
+
+.inlineForm {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.inlineForm label {
+  margin: 0;
+  flex: 1;
+  min-width: 140px;
+}
+
+.reviewBox {
+  margin-top: 8px;
+  padding: 10px;
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  max-width: 420px;
+}
+
+.editing td {
+  background: #fffdf8;
+}
+
+.checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  margin: 12px 0 16px;
+}
+
+.checks legend {
+  padding: 0 6px;
+  color: var(--muted);
+}
+
+.checks label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.checks input {
+  width: auto;
+}
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.figures div {
+  border-top: 3px solid var(--ink);
+  padding-top: 8px;
+}
+
+.figures span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.figures strong {
+  font: 700 1.8rem/1.2 var(--serif);
+}
+
+@media (max-width: 640px) {
+  .masters li {
+    grid-template-columns: 48px 1fr;
+  }
+
+  .masters li > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .avatarBig {
+    width: 96px;
+    height: 96px;
+  }
+
+  .step {
+    grid-template-columns: 36px 1fr;
+  }
+}
