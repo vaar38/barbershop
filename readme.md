@@ -361,6 +361,11 @@ sequenceDiagram
 
 Остановить — `docker compose down`, удалить вместе с базой — `docker compose down -v`.
 
+Тесты бэкенда (45, нужна запущенная база):
+```
+docker compose run --rm -v ./backend:/app backend sh -c "pip install -q -r requirements-dev.txt && pytest"
+```
+
 Запуск бэкенда без Docker — в [docs/backend.md](docs/backend.md#10-запуск-без-docker). Фронтенд отдельно: `cd frontend`, `npm ci`, `npm run dev` (проксирует `/api` на `127.0.0.1:8000`); тесты — `npm test`, линтер — `npm run lint`.
 
 
