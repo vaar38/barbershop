@@ -67,3 +67,23 @@ class MasterOut(BaseModel):
     level: str
     bio: str | None
     photo_url: str | None
+
+
+# --- Записи ---
+
+class AppointmentCreate(BaseModel):
+    master_id: int
+    service_ids: list[int] = Field(min_length=1)
+    start_at: datetime
+    comment: str | None = None
+
+class AppointmentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    master_id: int
+    branch_id: int
+    start_at: datetime
+    end_at: datetime
+    status: str
+    total_price: Decimal
+    comment: str | None
