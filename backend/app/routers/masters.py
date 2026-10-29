@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from app.schemas import MasterOut
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import Master, MasterService, User, Service, WorkShift
+from app.models import Appointment, Master, MasterService, User, Service, WorkShift
 from app.config import TZ
 from datetime import date, datetime, timedelta
 
@@ -87,8 +87,20 @@ def get_slot(date: date, master_id: int, service_ids: list[int] = Query(), db: S
     end = datetime.combine(date, shift.end_time, tzinfo=TZ)
     step = timedelta(minutes=15)
 
+    busy = (
+        db.query(Appointment)
+        .filter(Appointment.master_id == master_id)
+        .filter(Appointment.status.in_(["pending","confirmed"]))
+        .filter(Appointment.start_at < end, Appointment.end_at > start)
+        .all()
+    )
+    now = datetime.now(TZ)
+
     slots = []
     while start + duration <= end:
-        slots.append(start)
+        slot_end = start + duration
+        is_busy = any(start < a.end_at and slot_end > a.start_at for a in busy)
+        if start > now and not is_busy:
+            slots.append(start)
         start = start + step
     return slots
