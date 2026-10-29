@@ -417,6 +417,7 @@ function AllAppointments() {
               <tr>
                 <th>№</th>
                 <th>Когда</th>
+                <th>Клиент</th>
                 <th>Мастер</th>
                 <th>Сумма</th>
                 <th>Статус</th>
@@ -431,7 +432,12 @@ function AllAppointments() {
                     {day(a.start_at)}, {time(a.start_at)}–{time(a.end_at)}
                   </td>
                   <td>
+                    {a.client_name}
+                    {a.client_phone && <div className="muted">{a.client_phone}</div>}
+                  </td>
+                  <td>
                     {masters.data?.find((m) => m.id === a.master_id)?.full_name ?? `мастер №${a.master_id}`}
+                    <div className="muted">{a.services.join(", ")}</div>
                     <div className="muted">{branches.data?.find((b) => b.id === a.branch_id)?.name}</div>
                   </td>
                   <td>{money(a.total_price)}</td>

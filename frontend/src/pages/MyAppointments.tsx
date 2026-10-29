@@ -119,7 +119,7 @@ export default function MyAppointments() {
             <thead>
               <tr>
                 <th>Когда</th>
-                <th>Мастер</th>
+                <th>Услуги и мастер</th>
                 <th>Стоимость</th>
                 <th>Статус</th>
                 <th />
@@ -138,8 +138,10 @@ export default function MyAppointments() {
                       </strong>
                     </td>
                     <td>
-                      {masterName(a.master_id)}
-                      <div className="muted">{branchName(a.branch_id)}</div>
+                      {a.services.join(", ")}
+                      <div className="muted">
+                        {masterName(a.master_id)}, {branchName(a.branch_id)}
+                      </div>
                       {a.comment && <div className="muted">«{a.comment}»</div>}
                     </td>
                     <td>{money(a.total_price)}</td>

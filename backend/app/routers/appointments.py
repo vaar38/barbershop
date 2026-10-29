@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.config import TZ
 from app.database import get_db
-from app.models import Appointment, AppointmentService, Master, MasterService, Review, Service, WorkShift
+from app.models import Appointment, AppointmentService, Master, MasterService, Review, Service, User, WorkShift
 from app.schemas import AppointmentCreate, AppointmentOut, ReviewCreate, ReviewOut, StatusUpdate
 from app.security import get_current_user, get_role_name
 
@@ -17,6 +17,38 @@ router = APIRouter(prefix="/api/appointments", tags=["appointments"])
 # Коэффициент цены по уровню мастера
 LEVEL_FACTOR = {"junior": Decimal("1.0"), "middle": Decimal("1.2"), "top": Decimal("1.5")}
 SLOT_STEP = timedelta(minutes=15)
+
+
+# Добавляет к записям имя и телефон клиента и названия услуг — их показывают мастеру и администратору.
+# Двумя запросами на весь список, а не по запросу на каждую запись
+def with_details(appointments, db):
+    client_ids = {a.client_id for a in appointments}
+    clients = {u.id: u for u in db.query(User).filter(User.id.in_(client_ids)).all()}
+
+    services = {}
+    rows = (
+        db.query(AppointmentService.appointment_id, Service.name)
+        .join(Service, Service.id == AppointmentService.service_id)
+        .filter(AppointmentService.appointment_id.in_([a.id for a in appointments]))
+        .order_by(Service.name)
+        .all()
+    )
+    for appointment_id, name in rows:
+        services.setdefault(appointment_id, []).append(name)
+
+    result = []
+    for a in appointments:
+        client = clients[a.client_id]
+        result.append(AppointmentOut.model_validate(a).model_copy(update={
+            "client_name": client.full_name,
+            "client_phone": client.phone,
+            "services": services.get(a.id, []),
+        }))
+    return result
+
+
+def one_with_details(appointment, db):
+    return with_details([appointment], db)[0]
 
 
 @router.post("", response_model=AppointmentOut, status_code=201)
@@ -108,7 +140,7 @@ def create_appointment(data: AppointmentCreate, user=Depends(get_current_user), 
         raise HTTPException(status_code=409, detail="Время уже занято")
 
     db.refresh(appointment)
-    return appointment
+    return one_with_details(appointment, db)
 
 
 @router.get("", response_model=list[AppointmentOut])
@@ -146,7 +178,7 @@ def list_appointments(
         next_day = date_to + timedelta(days=1)
         query = query.filter(Appointment.start_at < datetime.combine(next_day, time.min, tzinfo=TZ))
 
-    return query.order_by(Appointment.start_at).all()
+    return with_details(query.order_by(Appointment.start_at).all(), db)
 
 
 CANCEL_DEADLINE = timedelta(hours=2)
@@ -170,7 +202,7 @@ def find_visible(appointment_id, user, role, db):
 
 @router.get("/{appointment_id}", response_model=AppointmentOut)
 def get_appointment(appointment_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)):
-    return find_visible(appointment_id, user, get_role_name(user, db), db)
+    return one_with_details(find_visible(appointment_id, user, get_role_name(user, db), db), db)
 
 
 @router.post("/{appointment_id}/cancel", response_model=AppointmentOut)
@@ -192,7 +224,7 @@ def cancel_appointment(appointment_id: int, user=Depends(get_current_user), db: 
     appointment.cancelled_at = now
     db.commit()
     db.refresh(appointment)
-    return appointment
+    return one_with_details(appointment, db)
 
 
 # Разрешённые переходы статуса (см. диаграмму состояний в readme)
@@ -219,7 +251,7 @@ def change_status(appointment_id: int, data: StatusUpdate, user=Depends(get_curr
     appointment.status = data.status
     db.commit()
     db.refresh(appointment)
-    return appointment
+    return one_with_details(appointment, db)
 
 
 @router.post("/{appointment_id}/review", response_model=ReviewOut, status_code=201)

@@ -76,7 +76,9 @@ export default function Schedule() {
                       </strong>
                     </td>
                     <td>
-                      Запись №{a.id}
+                      <strong>{a.client_name}</strong>
+                      {a.client_phone && <span className="muted"> · {a.client_phone}</span>}
+                      <div>{a.services.join(", ")}</div>
                       {a.comment && <div className="muted">«{a.comment}»</div>}
                     </td>
                     <td>{money(a.total_price)}</td>
