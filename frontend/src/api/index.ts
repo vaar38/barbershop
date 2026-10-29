@@ -31,6 +31,9 @@ export type Appointment = {
   status: Status;
   total_price: string;
   comment: string | null;
+  client_name: string;
+  client_phone: string | null;
+  services: string[];
 };
 export type Review = { id: number; appointment_id: number; rating: number; text: string | null; created_at: string };
 export type Shift = { id: number; master_id: number; branch_id: number; work_date: string; start_time: string; end_time: string };

@@ -24,6 +24,9 @@ const routes = {
     status: "pending",
     total_price: "3600.00",
     comment: null,
+    client_name: "Клиент",
+    client_phone: null,
+    services: ["Мужская стрижка", "Оформление бороды"],
   },
 };
 

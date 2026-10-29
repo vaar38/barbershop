@@ -153,6 +153,10 @@ class AppointmentOut(BaseModel):
     status: str
     total_price: Decimal
     comment: str | None
+    # заполняются в routers/appointments.py (with_details): кто придёт и на какие услуги
+    client_name: str = ""
+    client_phone: str | None = None
+    services: list[str] = []
 
 # Тело PATCH /api/appointments/{id}/status
 class StatusUpdate(BaseModel):
