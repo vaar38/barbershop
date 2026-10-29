@@ -21,6 +21,10 @@ SLOT_STEP = timedelta(minutes=15)
 
 @router.post("", response_model=AppointmentOut, status_code=201)
 def create_appointment(data: AppointmentCreate, user=Depends(get_current_user), db: Session = Depends(get_db)):
+    # Записываются только клиенты: у мастера и администратора своих записей нет
+    if get_role_name(user, db) != "client":
+        raise HTTPException(status_code=403, detail="Записаться может только клиент")
+
     # 1. Мастер существует и работает
     master = db.query(Master).filter(Master.id == data.master_id).first()
     if master is None or not master.is_active:
